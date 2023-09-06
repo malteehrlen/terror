@@ -1,5 +1,7 @@
 package terror
 
+import "errors"
+
 type TryFunc[R any] func() R
 type CatchFunc[R any] func(Catchable) R
 type FinallyFunc[R any] func(R) R
@@ -10,16 +12,28 @@ type TryBlock[R any] struct {
 	Finally FinallyFunc[R]
 }
 
-func (b TryBlock[R]) run() R {
+func (b TryBlock[R]) run() (r R, err error) {
+	defer func() {
+		if c := recover(); c != nil {
+			cString, ok := c.(string)
+			if ok {
+				err = errors.New("Uncaught exception: " + cString)
+			} else {
+				err = errors.New("Uncaught, unparseable exception (wow!)")
+			}
+		}
+	}()
 	if b.Catch != nil {
 		if b.Finally != nil {
-			return terror(b.Try, b.Catch, b.Finally)
+			r = terror(b.Try, b.Catch, b.Finally)
 		}
-		tryCatch(b.Try, b.Catch)
+		r = tryCatch(b.Try, b.Catch)
 	} else if b.Finally != nil {
-		tryFinally(b.Try, b.Finally)
+		r = tryFinally(b.Try, b.Finally)
+	} else {
+		r = b.Try()
 	}
-	return b.Try()
+	return
 }
 
 func Throw(v Catchable) {
