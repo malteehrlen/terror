@@ -1,5 +1,5 @@
 # Try-error (Terror for short)
-Implements try/catch/finally so you can idk, mess up in new ways. Production ready! Try it today:
+Terror is a panic based try/catch/finally implementation. Lets mess up in new ways. Production ready! Try it today:
 ```
 go get github.com/malteehrlen/terror@v0.1.1
 ```
