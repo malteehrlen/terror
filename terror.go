@@ -12,7 +12,7 @@ type TryBlock[R any] struct {
 	Finally FinallyFunc[R]
 }
 
-func (b TryBlock[R]) run() (r R, err error) {
+func (b TryBlock[R]) Run() (r R, err error) {
 	defer func() {
 		if c := recover(); c != nil {
 			cString, ok := c.(string)
@@ -26,8 +26,9 @@ func (b TryBlock[R]) run() (r R, err error) {
 	if b.Catch != nil {
 		if b.Finally != nil {
 			r = terror(b.Try, b.Catch, b.Finally)
-		}
+		} else {
 		r = tryCatch(b.Try, b.Catch)
+        }
 	} else if b.Finally != nil {
 		r = tryFinally(b.Try, b.Finally)
 	} else {
